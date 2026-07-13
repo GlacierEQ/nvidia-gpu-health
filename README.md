@@ -1,18 +1,12 @@
 # nvidia-gpu-health
 
-NVIDIA Innovation: Solves distributed training reliability bottlenecks.
+**Portfolio motion** (GlacierEQ) — GPU health index for H100-class thermal/power/occupancy demos.
 
-## Pro Code Philosophy
+Not NVIDIA employment. Pairs with Colossus cooling + AKOS.
 
-Take what is known. Make it better. Do not touch the core.
+```bash
+python3 src/gpu_health.py
+python3 tests/test_gpu_health.py
+```
 
-## The Imovable Force
-
-A force that does not move is not weak. It is so correct that it does not need to move.
-
-## Quality
-
-- Production-grade, not prototype
-- Self-documenting code
-- Zero magic numbers
-- Adversarial tests
+AKOS: https://github.com/GlacierEQ/AKOS
