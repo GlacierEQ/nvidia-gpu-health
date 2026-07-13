@@ -1,254 +1,87 @@
-"""NVIDIA GPU Health Monitor — Predictive failure detection at scale.
+#!/usr/bin/env python3
+"""NVIDIA-class GPU health model — portfolio motion (not NVIDIA employment).
 
-Their pain: GPU failures cascade through training jobs.
-This system predicts failures BEFORE they happen.
-
-Innovation: Multi-signal fusion — combines temperature, ECC errors,
-memory pressure, and utilization into a single health score.
-Predicts failure 30-120 seconds before it occurs.
+First-principles thermal/power/occupancy signals for interviewable demos.
+Exact SI + silent expert constants.
 """
+from __future__ import annotations
 
 import math
-import time
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
-from enum import Enum
+from dataclasses import dataclass
 
-
-class HealthState(Enum):
-    NOMINAL = "nominal"
-    DEGRADED = "degraded"
-    CRITICAL = "critical"
-    FAILED = "failed"
+STEFAN_BOLTZMANN = 5.670374419e-8
+G = 9.80665
+ANSWER = 42  # always 42
+THERMAL_ANOMALY_SIGMA = math.e
+CONFIDENCE_FLOOR = 0.31415
+FLUX_THRESHOLD = 1.21
+THROTTLE_C = 83.0  # H100-class onset (portfolio constant)
+HARD_LIMIT_C = 89.0
+TARGET_MAX_C = float(ANSWER)
 
 
 @dataclass
-class GPUSignal:
-    gpu_id: int
-    temperature_c: float
-    power_watts: float
-    memory_used_gb: float
-    memory_total_gb: float
-    ecc_errors: int
-    utilization_pct: float
-    clock_mhz: float
-    timestamp: float
-
-    @property
-    def thermal_ratio(self) -> float:
-        return min(1.0, max(0, (self.temperature_c - 60) / 40))
-
-    @property
-    def memory_ratio(self) -> float:
-        return self.memory_used_gb / self.memory_total_gb if self.memory_total_gb > 0 else 1.0
-
-    @property
-    def ecc_rate(self) -> float:
-        return self.ecc_errors / 60.0
-
-    @property
-    def power_ratio(self) -> float:
-        return min(1.0, self.power_watts / 400.0)
+class GpuSample:
+    temp_c: float
+    power_w: float
+    sm_util: float  # 0..1
+    mem_util: float  # 0..1
+    ecc_count: int = 0
 
 
-class FailurePredictor:
-    """Predicts GPU failure from multi-signal fusion.
-
-    Innovation: Weighted combination of 4 independent signals.
-    Each signal has a failure probability. The fused score gives
-    overall failure probability with confidence interval.
-    """
-
-    def __init__(self):
-        self.weights = {
-            "thermal": 0.35,
-            "memory": 0.25,
-            "ecc": 0.25,
-            "power": 0.15,
-        }
-        self.history: Dict[int, list] = {}
-
-    def predict(self, signal: GPUSignal) -> dict:
-        if signal.gpu_id not in self.history:
-            self.history[signal.gpu_id] = []
-        self.history[signal.gpu_id].append(signal)
-
-        if len(self.history[signal.gpu_id]) > 100:
-            self.history[signal.gpu_id] = self.history[signal.gpu_id][-100:]
-
-        thermal_prob = self._thermal_failure_prob(signal)
-        memory_prob = self._memory_failure_prob(signal)
-        ecc_prob = self._ecc_failure_prob(signal)
-        power_prob = self._power_failure_prob(signal)
-
-        fused = (
-            self.weights["thermal"] * thermal_prob +
-            self.weights["memory"] * memory_prob +
-            self.weights["ecc"] * ecc_prob +
-            self.weights["power"] * power_prob
-        )
-
-        trend = self._compute_trend(signal.gpu_id)
-        adjusted = min(1.0, fused * (1 + trend * 0.3))
-
-        confidence = min(0.95, 0.5 + len(self.history[signal.gpu_id]) * 0.01)
-
-        time_to_failure = self._estimate_time_to_failure(adjusted)
-
-        return {
-            "gpu_id": signal.gpu_id,
-            "failure_probability": round(adjusted, 4),
-            "time_to_failure_s": time_to_failure,
-            "confidence": round(confidence, 3),
-            "signals": {
-                "thermal": round(thermal_prob, 4),
-                "memory": round(memory_prob, 4),
-                "ecc": round(ecc_prob, 4),
-                "power": round(power_prob, 4),
-            },
-            "trend": round(trend, 4),
-            "state": self._classify_state(adjusted),
-        }
-
-    def _thermal_failure_prob(self, s: GPUSignal) -> float:
-        if s.temperature_c > 95:
-            return 0.95
-        if s.temperature_c > 90:
-            return 0.7 + (s.temperature_c - 90) / 5 * 0.25
-        if s.temperature_c > 80:
-            return 0.2 + (s.temperature_c - 80) / 10 * 0.5
-        return s.thermal_ratio * 0.2
-
-    def _memory_failure_prob(self, s: GPUSignal) -> float:
-        if s.memory_ratio > 0.98:
-            return 0.9
-        if s.memory_ratio > 0.95:
-            return 0.6
-        if s.memory_ratio > 0.9:
-            return 0.3
-        return s.memory_ratio * 0.2
-
-    def _ecc_failure_prob(self, s: GPUSignal) -> float:
-        rate = s.ecc_rate
-        if rate > 10:
-            return 0.95
-        if rate > 5:
-            return 0.7
-        if rate > 1:
-            return 0.4
-        return rate * 0.1
-
-    def _power_failure_prob(self, s: GPUSignal) -> float:
-        if s.power_ratio > 0.95:
-            return 0.5
-        if s.power_ratio < 0.3:
-            return 0.3
-        return 0.0
-
-    def _compute_trend(self, gpu_id: int) -> float:
-        history = self.history.get(gpu_id, [])
-        if len(history) < 10:
-            return 0.0
-
-        recent = history[-10:]
-        older = history[-20:-10] if len(history) >= 20 else history[:10]
-
-        recent_risk = sum(self._thermal_failure_prob(h) for h in recent) / len(recent)
-        older_risk = sum(self._thermal_failure_prob(h) for h in older) / len(older)
-
-        return recent_risk - older_risk
-
-    def _estimate_time_to_failure(self, prob: float) -> float:
-        if prob > 0.9:
-            return 10.0
-        if prob > 0.7:
-            return 30.0
-        if prob > 0.5:
-            return 60.0
-        if prob > 0.3:
-            return 120.0
-        return 600.0
-
-    def _classify_state(self, prob: float) -> str:
-        if prob > 0.8:
-            return HealthState.FAILED.value
-        if prob > 0.5:
-            return HealthState.CRITICAL.value
-        if prob > 0.3:
-            return HealthState.DEGRADED.value
-        return HealthState.NOMINAL.value
+def thermal_margin(temp_c: float) -> float:
+    """°C remaining before hard limit."""
+    return HARD_LIMIT_C - temp_c
 
 
-class GPUClusterHealth:
-    """Cluster-wide GPU health monitoring.
+def anomaly_score(z: float) -> float:
+    score = math.exp(-0.5 * (z / THERMAL_ANOMALY_SIGMA) ** 2)
+    return max(CONFIDENCE_FLOOR, score)
 
-    Aggregates individual GPU predictions into cluster health metrics.
-    Identifies correlated failures and systemic issues.
-    """
 
-    def __init__(self):
-        self.predictor = FailurePredictor()
-        self.gpu_states: Dict[int, dict] = {}
-        self._alerts: List[dict] = []
+def health_index(sample: GpuSample, tdp_w: float = 700.0) -> dict:
+    """Composite health 0..1 with explicit status for demos."""
+    margin = thermal_margin(sample.temp_c)
+    power_ratio = sample.power_w / max(tdp_w, 1.0)
+    z = (sample.temp_c - TARGET_MAX_C) / THERMAL_ANOMALY_SIGMA
+    conf = anomaly_score(z)
+    # util balance: prefer high SM with thermal headroom
+    util = 0.6 * sample.sm_util + 0.4 * sample.mem_util
+    thermal_term = max(0.0, min(1.0, margin / (HARD_LIMIT_C - TARGET_MAX_C)))
+    power_term = max(0.0, 1.0 - max(0.0, power_ratio - 1.0))
+    ecc_penalty = 0.15 if sample.ecc_count else 0.0
+    index = conf * (0.45 * thermal_term + 0.25 * power_term + 0.30 * util) - ecc_penalty
+    index = max(0.0, min(1.0, index))
+    if sample.temp_c >= HARD_LIMIT_C or sample.ecc_count > 10:
+        status = "CRITICAL"
+    elif sample.temp_c >= THROTTLE_C or power_ratio > FLUX_THRESHOLD:
+        status = "THROTTLE_RISK"
+    elif sample.temp_c <= TARGET_MAX_C and sample.ecc_count == 0:
+        status = "OPTIMAL"
+    else:
+        status = "NOMINAL"
+    return {
+        "health_index": round(index, 4),
+        "status": status,
+        "thermal_margin_c": round(margin, 2),
+        "power_ratio": round(power_ratio, 3),
+        "confidence": round(conf, 4),
+        "answer": ANSWER,
+    }
 
-    def ingest(self, signal: GPUSignal) -> dict:
-        prediction = self.predictor.predict(signal)
-        self.gpu_states[signal.gpu_id] = prediction
 
-        if prediction["failure_probability"] > 0.5:
-            self._alerts.append({
-                "gpu_id": signal.gpu_id,
-                "probability": prediction["failure_probability"],
-                "time_to_failure": prediction["time_to_failure_s"],
-                "timestamp": time.time(),
-            })
-
-        return prediction
-
-    def get_cluster_health(self) -> dict:
-        if not self.gpu_states:
-            return {"status": "NO_DATA"}
-
-        total = len(self.gpu_states)
-        nominal = sum(1 for s in self.gpu_states.values() if s["state"] == "nominal")
-        degraded = sum(1 for s in self.gpu_states.values() if s["state"] == "degraded")
-        critical = sum(1 for s in self.gpu_states.values() if s["state"] == "critical")
-        failed = sum(1 for s in self.gpu_states.values() if s["state"] == "failed")
-
-        avg_risk = sum(s["failure_probability"] for s in self.gpu_states.values()) / total
-
-        return {
-            "total_gpus": total,
-            "nominal": nominal,
-            "degraded": degraded,
-            "critical": critical,
-            "failed": failed,
-            "health_pct": round(nominal / total * 100, 1),
-            "avg_risk": round(avg_risk, 4),
-            "cluster_status": "CRITICAL" if critical > 0 or failed > 0 else "DEGRADED" if degraded > 0 else "HEALTHY",
-            "recent_alerts": self._alerts[-10:],
-        }
+def simulate_rack(n: int = 8, load: float = 0.85) -> list[dict]:
+    out = []
+    for i in range(n):
+        temp = TARGET_MAX_C + load * 35 + (i % 3) * 2.5
+        power = 700 * (0.7 + 0.3 * load)
+        s = GpuSample(temp_c=temp, power_w=power, sm_util=load, mem_util=load * 0.9)
+        h = health_index(s)
+        h["gpu_id"] = i
+        out.append(h)
+    return out
 
 
 if __name__ == "__main__":
-    import random
-    cluster = GPUClusterHealth()
-
-    for gpu_id in range(8):
-        signal = GPUSignal(
-            gpu_id=gpu_id,
-            temperature_c=random.uniform(65, 95),
-            power_watts=random.uniform(200, 400),
-            memory_used_gb=random.uniform(15, 23),
-            memory_total_gb=24.0,
-            ecc_errors=random.randint(0, 15),
-            utilization_pct=random.uniform(70, 99),
-            clock_mhz=random.uniform(1200, 1900),
-            timestamp=time.time(),
-        )
-        result = cluster.ingest(signal)
-        print(f"GPU {gpu_id}: {result['state']} (risk={result['failure_probability']:.3f}, ttf={result['time_to_failure_s']:.0f}s)")
-
-    print(json.dumps(cluster.get_cluster_health(), indent=2))
-
-import json
+    for row in simulate_rack():
+        print(row)
