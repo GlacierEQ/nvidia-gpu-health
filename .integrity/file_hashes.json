@@ -1,17 +1,16 @@
 {
-  "repo": "nvidia-gpu-health",
-  "algorithm": "sha256",
-  "file_count": 10,
+  "file_count": 11,
   "hashes": {
-    "README.md": "bf0581e4e8777a607fbce594a7238e0d2db021c7b92277faaea4a5d7b2e48b66",
-    "EASTER_EGGS.md": "0c4fc58a6163b54497fc8327ec77f4293330eea4ba636e30db202836bd450900",
     "AKOS.md": "7fe75c369aef1b05d842fbc5a4a2e347e949787e0a17bec0bb99a2f8b490b9ca",
+    "EASTER_EGGS.md": "0c4fc58a6163b54497fc8327ec77f4293330eea4ba636e30db202836bd450900",
     "HELIX_STRAND.md": "5cf242f4eb09e37b108733a080abb3b95df971270255727c2be9d1968099fb6b",
-    "mastermind_sidecar.py": "0b6e072d3f019a9f4b771673d294b5c29a5c8d23f42fdfe49d2f932237b538af",
-    "SECURITY_AND_FLEET_OPS.md": "26141c0f07d95847d679de423ddb7bdee6f3e319d204383c89a58d6d3bb610c7",
     "ISSUE_CONTRACT.md": "4801cb4f18248815e64b9746667a24640ff7ad746adf2b94cb1dc6b8e839acb4",
+    "README.md": "dd20cb7dc15a4f9c0a2b87b911d06686a0fad7edffc05a827a10064dcf49b0ea",
+    "SECURITY_AND_FLEET_OPS.md": "26141c0f07d95847d679de423ddb7bdee6f3e319d204383c89a58d6d3bb610c7",
+    "mastermind_sidecar.py": "0b6e072d3f019a9f4b771673d294b5c29a5c8d23f42fdfe49d2f932237b538af",
+    "src/gpu_health.py": "3fdfb852527483f6c2efd91cb6246223fbf94d5d20a094516e81f974c0d7fe97",
+    "src/nvlink_health.c": "779852672aa401884c6e6b7a605fcf5b3ab10255e36b6330b85beb08d1770a6d",
     "tests/test_gpu_health.py": "c9229adffe587a847a0a304e7da0836ac01e9b64edf9c9229968f0d5d638d449",
-    ".github/workflows/ci.yml": "393542f8109cac2611d6ab41b8b062e6cc8be46894379568f15c0b7e2c1a639f",
-    "src/gpu_health.py": "3fdfb852527483f6c2efd91cb6246223fbf94d5d20a094516e81f974c0d7fe97"
+    "tests/test_nvlink_health.py": "717eec353b9dffac8fc68bcf66bb2fdd4439563ae9b77204cd3faf0847c314d9"
   }
 }
