@@ -1,0 +1,11 @@
+{
+  "schema": "glaciereq.promotion-authority-grant.v1",
+  "repository": "GlacierEQ/nvidia-gpu-health",
+  "source_sha": "9ae32913e943e6cb2a1d37e44497cc007f49ef0eb0b3a0cfd0e0748af128a503",
+  "proof_receipt_digest": "b3392cd073552f45f804f7808f15b08a2fee6f4677e59207e085b3ec24dd604f",
+  "not_after": 1788927149.234226,
+  "mac": "971ef34ffd6d3ed9df76e4c3fb75195238128958383772016d10be73a528c0e6",
+  "issuer": "local_operator_promotion_authority",
+  "verified": true,
+  "secret_ref": "src/promotion_authority.py::LOCAL_OPERATOR_SECRET"
+}

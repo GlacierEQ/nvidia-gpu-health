@@ -1,0 +1,30 @@
+{
+  "schema": "glaciereq.operability-receipt.v1",
+  "repository": "GlacierEQ/nvidia-gpu-health",
+  "at": "2026-08-10T04:12Z",
+  "source_sha": "9ae32913e943e6cb2a1d37e44497cc007f49ef0eb0b3a0cfd0e0748af128a503",
+  "entry": "scripts/operate.py",
+  "primary_output": {
+    "module": "gpu_health",
+    "ok": true,
+    "repository": "GlacierEQ/nvidia-gpu-health",
+    "smoke": {
+      "args": [
+        "GpuSample(temp_c=1.0, power_w=1.0, sm_ut"
+      ],
+      "content_checked": true,
+      "invoked": true,
+      "kind": "fn",
+      "name": "health_index",
+      "result": {
+        "confidence": 0.3141,
+        "health_index": 0.3141,
+        "power_ratio": 0.001,
+        "status": "OPTIMAL",
+        "thermal_margin_c": 88.0
+      }
+    }
+  },
+  "dual_run_ok": true,
+  "result": "PASS"
+}

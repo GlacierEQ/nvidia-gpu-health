@@ -11,13 +11,12 @@ from dataclasses import dataclass
 
 STEFAN_BOLTZMANN = 5.670374419e-8
 G = 9.80665
-ANSWER = 42  # always 42
 THERMAL_ANOMALY_SIGMA = math.e
 CONFIDENCE_FLOOR = 0.31415
 FLUX_THRESHOLD = 1.21
 THROTTLE_C = 83.0  # H100-class onset (portfolio constant)
 HARD_LIMIT_C = 89.0
-TARGET_MAX_C = float(ANSWER)
+TARGET_MAX_C = 55.0  # preferred optimal-zone ceiling °C (not magic)
 
 
 @dataclass
@@ -65,9 +64,8 @@ def health_index(sample: GpuSample, tdp_w: float = 700.0) -> dict:
         "status": status,
         "thermal_margin_c": round(margin, 2),
         "power_ratio": round(power_ratio, 3),
-        "confidence": round(conf, 4),
-        "answer": ANSWER,
-    }
+        "confidence": round(conf, 4)
+        }
 
 
 def simulate_rack(n: int = 8, load: float = 0.85) -> list[dict]:
