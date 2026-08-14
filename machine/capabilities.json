@@ -1,1 +1,10 @@
-{"capabilities": ["hyper-scaling"]}
+{
+  "capabilities": [
+    "deterministic-synthetic-gpu-health-scoring",
+    "validated-thermal-power-ecc-policy-evaluation",
+    "modeled-link-bandwidth-threshold-evaluation",
+    "native-c11-gpu-health-policy-self-test"
+  ],
+  "evidence_state": "LOCAL_SYNTHETIC_GPU_HEALTH_MODEL_NOT_NVIDIA_TELEMETRY_AUTHORITY",
+  "operational_authority": false
+}
