@@ -2,21 +2,29 @@
   "schema": "glaciereq.repo-target-contract.v1",
   "identity": {
     "repository_id": "GlacierEQ/nvidia-gpu-health",
-    "family": "elite-estate"
+    "family": "gpu-health-portfolio"
   },
   "current": {
-    "state": "PROMOTED",
+    "state": "FUNCTIONAL_CANDIDATE",
     "implemented": true,
-    "tested": true,
-    "deployed": false
+    "tested_locally": true,
+    "deployed": false,
+    "operational_authority": false
   },
-  "nonclaims": [
-    "no employer affiliation",
-    "no production deployment without receipt"
+  "verified_scope": [
+    "deterministic synthetic GPU health scoring",
+    "validated thermal, power, utilization, and ECC input handling",
+    "modeled link-bandwidth threshold evaluation",
+    "native C11 policy self-test"
   ],
-  "donor_plan": {
-    "mode": "none",
-    "donors": []
-  },
-  "frozen_at": "2026-08-10T04:12Z"
+  "nonclaims": [
+    "no NVIDIA affiliation, employment, endorsement, or proprietary access",
+    "no NVML, DCGM, or hardware telemetry acquisition",
+    "no real-time daemon or production cluster monitoring",
+    "no physical GPU diagnosis, failure prediction, or remediation authority",
+    "no measured zero-overhead, production-scale, or reliability claim",
+    "no live MCP, APEX, Mastermind, or provider integration",
+    "no hardware, scheduler, or production operational authority"
+  ],
+  "next_gate": "exact-current-head repository-native CI must verify Python tests, public truth, and compiled C11 self-test"
 }
