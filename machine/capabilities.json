@@ -3,8 +3,26 @@
     "deterministic-synthetic-gpu-health-scoring",
     "validated-thermal-power-ecc-policy-evaluation",
     "modeled-link-bandwidth-threshold-evaluation",
-    "native-c11-gpu-health-policy-self-test"
+    "native-c11-gpu-health-policy-self-test",
+    "apex-mass-recovery-enrolled"
   ],
   "evidence_state": "LOCAL_SYNTHETIC_GPU_HEALTH_MODEL_NOT_NVIDIA_TELEMETRY_AUTHORITY",
-  "operational_authority": false
+  "operational_authority": false,
+  "recovery": {
+    "identity": "APEX_IS_THE_COUNTER_TO_CANONICAL_DESTRUCTION",
+    "law": "MAXIMUM_COHERENT_ADVANCE",
+    "program": "mass-job-repo-recovery",
+    "dual_plane": true
+  },
+  "planes": {
+    "verified": [
+      "deterministic-synthetic-gpu-health-scoring",
+      "validated-thermal-power-ecc-policy-evaluation",
+      "modeled-link-bandwidth-threshold-evaluation",
+      "native-c11-gpu-health-policy-self-test"
+    ],
+    "implemented": [
+      "apex-mass-recovery-enrolled"
+    ]
+  }
 }
