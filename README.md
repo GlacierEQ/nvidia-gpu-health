@@ -11,10 +11,15 @@ This repository demonstrates deterministic **local GPU-health scoring** from syn
 - `src/nvlink_health.c` implements a small C11 policy evaluator for caller-supplied ECC counts and modeled link bandwidth.
 - The native C self-test covers nominal, warning, critical, and malformed-input paths.
 - `simulate_rack()` creates deterministic synthetic fixtures; it is not a telemetry collector.
+- `src/gpu_integrity_quorum.py` composes caller-supplied per-GPU health and numerical-integrity signals into a deterministic rack-level `NOMINAL | WARNING | CRITICAL` review state, identifies review candidates, and emits a SHA-256-bound local receipt without taking hardware or scheduler action.
 
 ## Evidence boundary
 
 `LOCAL_SYNTHETIC_GPU_HEALTH_MODEL_NOT_NVIDIA_TELEMETRY_AUTHORITY`
+
+A second explicit boundary applies to the quorum mechanism:
+
+`LOCAL_SYNTHETIC_GPU_INTEGRITY_QUORUM_NOT_NVIDIA_CLUSTER_AUTHORITY`
 
 Current proof may establish local deterministic computation and tests. It does **not** establish:
 
