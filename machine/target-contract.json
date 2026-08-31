@@ -15,7 +15,9 @@
     "deterministic synthetic GPU health scoring",
     "validated thermal, power, utilization, and ECC input handling",
     "modeled link-bandwidth threshold evaluation",
-    "native C11 policy self-test"
+    "native C11 policy self-test",
+    "deterministic multi-GPU health quorum over caller-supplied observations",
+    "fail-closed caller-supplied numerical-integrity signal with hash-bound local receipt"
   ],
   "nonclaims": [
     "no NVIDIA affiliation, employment, endorsement, or proprietary access",
@@ -26,5 +28,5 @@
     "no live MCP, APEX, Mastermind, or provider integration",
     "no hardware, scheduler, or production operational authority"
   ],
-  "next_gate": "exact-current-head repository-native CI must verify Python tests, public truth, and compiled C11 self-test"
+  "next_gate": "exact-current-head repository-native CI must verify Python tests, integrity quorum, public truth, and compiled C11 self-test"
 }
