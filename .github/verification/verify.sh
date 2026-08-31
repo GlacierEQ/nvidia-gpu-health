@@ -9,13 +9,21 @@ python -m unittest discover -s tests -p 'test_*.py' -v
 
 python - <<'PY'
 from gpu_health import EVIDENCE_STATE, GpuSample, health_index, simulate_rack
+from gpu_integrity_quorum import IntegrityObservation, evaluate_integrity_quorum
 
 nominal = health_index(GpuSample(temp_c=55, power_w=400, sm_util=0.5, mem_util=0.4))
 assert nominal["status"] == "NOMINAL"
 assert nominal["evidence_state"] == EVIDENCE_STATE
 assert nominal["operational_authority"] is False
 assert all(row["operational_authority"] is False for row in simulate_rack(3, 0.8))
-print({"evidence_state": EVIDENCE_STATE, "nominal": nominal})
+quorum = evaluate_integrity_quorum([
+    IntegrityObservation("gpu-0", GpuSample(temp_c=60, power_w=450, sm_util=0.7, mem_util=0.6)),
+    IntegrityObservation("gpu-1", GpuSample(temp_c=60, power_w=450, sm_util=0.7, mem_util=0.6)),
+])
+assert quorum["state"] == "NOMINAL"
+assert quorum["operational_authority"] is False
+assert len(quorum["receipt_sha256"]) == 64
+print({"evidence_state": EVIDENCE_STATE, "nominal": nominal, "quorum": quorum})
 PY
 
 cc -std=c11 -Wall -Wextra -Werror -pedantic src/nvlink_health.c -lm -o /tmp/nvidia_gpu_health_native
@@ -37,6 +45,8 @@ expected = [
     'validated-thermal-power-ecc-policy-evaluation',
     'modeled-link-bandwidth-threshold-evaluation',
     'native-c11-gpu-health-policy-self-test',
+    'deterministic-synthetic-multi-gpu-integrity-quorum',
+    'caller-supplied-numerical-integrity-fail-closed',
 ]
 assert capabilities['capabilities'] == expected
 assert capabilities['operational_authority'] is False
