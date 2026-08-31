@@ -11,6 +11,8 @@ EXPECTED_CAPABILITIES = [
     "validated-thermal-power-ecc-policy-evaluation",
     "modeled-link-bandwidth-threshold-evaluation",
     "native-c11-gpu-health-policy-self-test",
+    "deterministic-synthetic-multi-gpu-integrity-quorum",
+    "caller-supplied-numerical-integrity-fail-closed",
 ]
 
 
@@ -37,8 +39,11 @@ class PublicTruthTests(unittest.TestCase):
 
     def test_python_and_c_sources_share_evidence_boundary(self) -> None:
         python_source = (ROOT / "src/gpu_health.py").read_text(encoding="utf-8")
+        quorum_source = (ROOT / "src/gpu_integrity_quorum.py").read_text(encoding="utf-8")
         c_source = (ROOT / "src/nvlink_health.c").read_text(encoding="utf-8")
         self.assertIn(TOKEN, python_source)
+        self.assertIn("LOCAL_SYNTHETIC_GPU_INTEGRITY_QUORUM_NOT_NVIDIA_CLUSTER_AUTHORITY", quorum_source)
+        self.assertIn('"operational_authority": False', quorum_source)
         self.assertIn(TOKEN, c_source)
         self.assertIn('"operational_authority": False', python_source)
         self.assertIn('operational_authority=false', c_source)
