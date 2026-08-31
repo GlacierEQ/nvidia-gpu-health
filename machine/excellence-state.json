@@ -5,20 +5,44 @@
   "state": "FUNCTIONAL_CANDIDATE",
   "evidence_state": "IMPLEMENTED_CURRENT_HEAD_NATIVE_PROOF_REQUIRED",
   "gates": {
-    "IDENTITY_RESOLVED": {"status": "PASS", "evidence": "github GlacierEQ/nvidia-gpu-health"},
-    "PROBLEM_VERIFIED": {"status": "PASS", "evidence": "local GPU health-policy exhibit"},
-    "TARGET_CONTRACT_FROZEN": {"status": "PASS", "evidence": "machine/target-contract.json"},
-    "CENTRAL_MECHANISM_PRESENT": {"status": "PASS", "evidence": "src/gpu_health.py + src/nvlink_health.c"},
-    "LOCAL_DETERMINISTIC_PROOF": {"status": "PASS", "evidence": "Python regression suite + compiled C11 self-test contract"},
-    "PUBLIC_TRUTH_BOUNDARY": {"status": "PASS", "evidence": "independent portfolio; no telemetry, live integration, hardware, daemon, or production authority"},
-    "EXACT_CURRENT_HEAD_NATIVE_PROOF": {"status": "PENDING"},
-    "CANONICAL_POSITION_RESOLVED": {"status": "PENDING"}
+    "IDENTITY_RESOLVED": {
+      "status": "PASS",
+      "evidence": "github GlacierEQ/nvidia-gpu-health"
+    },
+    "PROBLEM_VERIFIED": {
+      "status": "PASS",
+      "evidence": "local GPU health-policy exhibit"
+    },
+    "TARGET_CONTRACT_FROZEN": {
+      "status": "PASS",
+      "evidence": "machine/target-contract.json"
+    },
+    "CENTRAL_MECHANISM_PRESENT": {
+      "status": "PASS",
+      "evidence": "src/gpu_health.py + src/gpu_integrity_quorum.py + src/nvlink_health.c"
+    },
+    "LOCAL_DETERMINISTIC_PROOF": {
+      "status": "PASS",
+      "evidence": "Python health/quorum regression suite + compiled C11 self-test contract"
+    },
+    "PUBLIC_TRUTH_BOUNDARY": {
+      "status": "PASS",
+      "evidence": "independent portfolio; no telemetry, live integration, hardware, daemon, or production authority"
+    },
+    "EXACT_CURRENT_HEAD_NATIVE_PROOF": {
+      "status": "PENDING"
+    },
+    "CANONICAL_POSITION_RESOLVED": {
+      "status": "PENDING"
+    }
   },
   "verified_capabilities": [
     "deterministic-synthetic-gpu-health-scoring",
     "validated-thermal-power-ecc-policy-evaluation",
     "modeled-link-bandwidth-threshold-evaluation",
-    "native-c11-gpu-health-policy-self-test"
+    "native-c11-gpu-health-policy-self-test",
+    "deterministic-synthetic-multi-gpu-integrity-quorum",
+    "caller-supplied-numerical-integrity-fail-closed"
   ],
   "nonclaims": [
     "no NVIDIA affiliation or proprietary access",
